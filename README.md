@@ -11,12 +11,12 @@ Ambiente com alvos vulneráveis para prática de pentest — sobe com um comando
 
 ## O que tem aqui
 
-| Container | Porta | Módulo | Uso |
-|-----------|-------|--------|-----|
-| **DVWA** | http://localhost:8080 | M2 | SQLi, XSS, CSRF, File Upload |
-| **Juice Shop** | http://localhost:3000 | M3 | OWASP Top 10, Burp Suite |
-| **WebGoat** | http://localhost:8081/WebGoat | M2 | Lições interativas OWASP |
-| **Metasploitable 2** | 172.20.0.20 (interno) | M3 | Nmap, Metasploit, Hydra |
+| Container | Porta | Uso |
+|-----------|-------|-----|
+| **DVWA** | http://localhost:8080 | SQLi, XSS, CSRF, File Upload |
+| **Juice Shop** | http://localhost:3000 | OWASP Top 10, Burp Suite |
+| **WebGoat** | http://localhost:8081/WebGoat | Lições interativas OWASP |
+| **Metasploitable 2** | 172.20.0.20 (interno) | Nmap, Metasploit, Hydra |
 
 ---
 
@@ -101,7 +101,7 @@ docker-compose down -v
 ## Máquina com pouca RAM? Suba só o que precisar
 
 ```bash
-# Só o DVWA (aulas de SQLi e XSS)
+# Só o DVWA
 docker-compose up -d dvwa
 
 # Só os alvos web (sem Metasploitable)
@@ -134,16 +134,6 @@ docker-compose logs dvwa
 docker-compose down -v && docker-compose up -d dvwa
 # Acesse: http://localhost:8080/setup.php → Create / Reset Database
 ```
-
----
-
-## Cobertura por módulo
-
-| Módulo | Semanas | Alvos |
-|--------|---------|-------|
-| M1 — Reconhecimento | 6, 7 | Metasploitable (Nmap) |
-| M2 — Defesa | 18, 19 | DVWA + WebGoat |
-| M3 — Pentest | 25–30 | Metasploitable + Juice Shop |
 
 ---
 
