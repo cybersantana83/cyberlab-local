@@ -1,0 +1,98 @@
+###############################################################
+# CyberLab Local
+# Ambiente de pentest local
+#
+# USO:
+#   docker-compose up -d
+#
+# ACESSO:
+#   DVWA         → http://localhost:8080
+#   Juice Shop   → http://localhost:3000
+#   WebGoat      → http://localhost:8081/WebGoat
+#   Metasploitable → 172.20.0.20 (via Nmap/Metasploit/Kali)
+#
+# PARAR:
+#   docker-compose down
+#
+# ⚠️  ATENÇÃO: ambiente intencionalmente vulnerável.
+#     Rode SOMENTE em rede local isolada ou com firewall ativo.
+#     NUNCA exponha estas portas na internet.
+###############################################################
+
+version: "3.8"
+
+networks:
+  lab-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+services:
+
+  # ── DVWA — Damn Vulnerable Web Application ──────────────────
+  # Módulo 2: SQLi, XSS, CSRF, File Upload, Command Injection
+  # Acesso: http://localhost:8080
+  # Login padrão: admin / password
+  dvwa:
+    image: vulnerables/web-dvwa:latest
+    container_name: lab-dvwa
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    networks:
+      lab-network:
+        ipv4_address: 172.20.0.10
+    environment:
+      - MYSQL_ROOT_PASSWORD=dvwa
+      - MYSQL_DATABASE=dvwa
+      - MYSQL_USER=dvwa
+      - MYSQL_PASSWORD=dvwa
+
+  # ── Juice Shop — OWASP Top 10 moderno ───────────────────────
+  # Módulo 3: Burp Suite, vulnerabilidades web modernas
+  # Acesso: http://localhost:3000
+  # Crie sua conta na primeira vez que acessar
+  juiceshop:
+    image: bkimminich/juice-shop:latest
+    container_name: lab-juiceshop
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      lab-network:
+        ipv4_address: 172.20.0.11
+
+  # ── WebGoat — Lições interativas OWASP ──────────────────────
+  # Módulo 2: aprendizado guiado de vulnerabilidades web
+  # Acesso: http://localhost:8081/WebGoat
+  # Login padrão: guest / guest
+  webgoat:
+    image: webgoat/webgoat:latest
+    container_name: lab-webgoat
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+      - "9090:9090"
+    networks:
+      lab-network:
+        ipv4_address: 172.20.0.12
+
+  # ── Metasploitable 2 — Alvo de sistema ──────────────────────
+  # Módulo 3: Nmap, Metasploit, Hydra, enumeração de serviços
+  # Acesso via Nmap: nmap -sV 172.20.0.20
+  # Login SSH: msfadmin / msfadmin
+  # Serviços: FTP(21), SSH(22), Telnet(23), SMB(445), MySQL(3306)
+  metasploitable:
+    image: tleemcjr/metasploitable2:latest
+    container_name: lab-metasploitable
+    restart: unless-stopped
+    networks:
+      lab-network:
+        ipv4_address: 172.20.0.20
+    # ⚠️  Portas NÃO expostas ao host intencionalmente
+    # Ataque a partir do Kali local apontando para 172.20.0.20
+    # Se precisar expor para testes, descomente abaixo:
+    # ports:
+    #   - "2222:22"
+    #   - "2121:21"
