@@ -87,6 +87,7 @@ services:
     image: tleemcjr/metasploitable2:latest
     container_name: lab-metasploitable
     restart: unless-stopped
+    tty: true
     networks:
       lab-network:
         ipv4_address: 172.20.0.20
