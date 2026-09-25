@@ -16,7 +16,9 @@ Ambiente com alvos vulneráveis para prática de pentest — sobe com um comando
 | **DVWA** | http://localhost:8080 | SQLi, XSS, CSRF, File Upload |
 | **Juice Shop** | http://localhost:3000 | OWASP Top 10, Burp Suite |
 | **WebGoat** | http://localhost:8081/WebGoat | Lições interativas OWASP |
-| **Metasploitable 2** | 172.20.0.20 (interno) | Nmap, Metasploit, Hydra |
+  **Kali Linux** | 172.20.0.5 (interno) | Nmap, enum4linux, ldapsearch |
+| **Metasploitable 2** | 172.20.0.20 (interno) | SNMP, SMB, LDAP |
+
 
 ---
 
@@ -60,18 +62,10 @@ docker-compose ps
 
 Todos devem aparecer com status `Up`.
 
-### 4. Acessar os alvos web
-
-| App | URL | Usuário | Senha |
-|-----|-----|---------|-------|
-| DVWA | http://localhost:8080 | admin | password |
-| Juice Shop | http://localhost:3000 | — | Crie na hora |
-| WebGoat | http://localhost:8081/WebGoat | guest | guest |
-
-### 5. Acessar o Metasploitable (via Kali)
-
-O Metasploitable fica isolado na rede interna `172.20.0.20`.
-Para atacá-lo, use o Kali apontando para esse IP:
+### 4. Acessar o Kali Linux
+```bash
+docker exec -it lab-kali /bin/bash
+```
 
 ```bash
 # Exemplos de uso no Kali:
@@ -80,6 +74,20 @@ nmap -p- -T4 172.20.0.20
 nmap -p445 --script smb-vuln-ms17-010 172.20.0.20
 ssh msfadmin@172.20.0.20   # senha: msfadmin
 ```
+
+
+### 5. Acessar os alvos web
+
+| App | URL | Usuário | Senha |
+|-----|-----|---------|-------|
+| DVWA | http://localhost:8080 | admin | password |
+| Juice Shop | http://localhost:3000 | — | Crie na hora |
+| WebGoat | http://localhost:8081/WebGoat | guest | guest |
+
+
+### Metasploitable
+O Metasploitable fica isolado na rede interna `172.20.0.20`.
+Para atacá-lo, aponte as ferramentas para esse IP: `172.20.0.20`
 
 ---
 

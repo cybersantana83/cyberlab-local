@@ -94,6 +94,31 @@ services:
     # ⚠️  Portas NÃO expostas ao host intencionalmente
     # Ataque a partir do Kali local apontando para 172.20.0.20
     # Se precisar expor para testes, descomente abaixo:
-    # ports:
-    #   - "2222:22"
-    #   - "2121:21"
+    ports:
+       - "2222:22"
+       - "2121:21"
+  # ── Kali Linux — Máquina de Ataque ──────────────────────────
+  kali:
+    image: kalilinux/kali-rolling:latest
+    container_name: lab-kali
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+
+    networks:
+      lab-network:
+        ipv4_address: 172.20.0.5
+    command: >
+      bash -c "
+      echo 'echo \"⏳ Aguarde... Instalação de ferramentas em andamento...\"' >> /root/.bashrc;
+      echo 'while [ ! -f /tmp/ready ]; do sleep 1; done' >> /root/.bashrc;
+      echo 'clear' >> /root/.bashrc;
+      
+      apt-get update && apt-get install -y iputils-ping curl net-tools nmap enum4linux snmp ldap-utils;
+      
+      touch /tmp/ready;
+      tail -f /dev/null
+      "
