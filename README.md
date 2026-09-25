@@ -16,7 +16,9 @@ Ambiente com alvos vulneráveis para prática de pentest — sobe com um comando
 | **DVWA** | http://localhost:8080 | SQLi, XSS, CSRF, File Upload |
 | **Juice Shop** | http://localhost:3000 | OWASP Top 10, Burp Suite |
 | **WebGoat** | http://localhost:8081/WebGoat | Lições interativas OWASP |
-| **Metasploitable 2** | 172.20.0.20 (interno) | Nmap, Metasploit, Hydra |
+  **Kali Linux** | 172.20.0.5 (interno) | Nmap, enum4linux, ldapsearch |
+| **Metasploitable 2** | 172.20.0.20 (interno) | SNMP, SMB, LDAP |
+
 
 ---
 

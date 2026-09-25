@@ -104,6 +104,10 @@ services:
     restart: unless-stopped
     tty: true
     stdin_open: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+
     networks:
       lab-network:
         ipv4_address: 172.20.0.5
