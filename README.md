@@ -62,22 +62,10 @@ docker-compose ps
 
 Todos devem aparecer com status `Up`.
 
-### 4. Acessar os alvos web
-
-| App | URL | Usuário | Senha |
-|-----|-----|---------|-------|
-| DVWA | http://localhost:8080 | admin | password |
-| Juice Shop | http://localhost:3000 | — | Crie na hora |
-| WebGoat | http://localhost:8081/WebGoat | guest | guest |
-
-### 5. Acessar o Metasploitable
+### 4. Acessar o Kali Linux
 ```bash
-docker exec -it lab-metasploitable /bin/bash
+docker exec -it lab-kali /bin/bash
 ```
-
-
-O Metasploitable fica isolado na rede interna `172.20.0.20`.
-Para atacá-lo, aponte as ferramentas para esse IP:
 
 ```bash
 # Exemplos de uso no Kali:
@@ -86,6 +74,20 @@ nmap -p- -T4 172.20.0.20
 nmap -p445 --script smb-vuln-ms17-010 172.20.0.20
 ssh msfadmin@172.20.0.20   # senha: msfadmin
 ```
+
+
+### 5. Acessar os alvos web
+
+| App | URL | Usuário | Senha |
+|-----|-----|---------|-------|
+| DVWA | http://localhost:8080 | admin | password |
+| Juice Shop | http://localhost:3000 | — | Crie na hora |
+| WebGoat | http://localhost:8081/WebGoat | guest | guest |
+
+
+### Metasploitable
+O Metasploitable fica isolado na rede interna `172.20.0.20`.
+Para atacá-lo, aponte as ferramentas para esse IP: `172.20.0.20`
 
 ---
 
