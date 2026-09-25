@@ -75,7 +75,7 @@ docker exec -it lab-metasploitable /bin/bash
 
 
 O Metasploitable fica isolado na rede interna `172.20.0.20`.
-Para atacá-lo, use o Kali apontando para esse IP:
+Para atacá-lo, aponte as ferramentas para esse IP:
 
 ```bash
 # Exemplos de uso no Kali:
