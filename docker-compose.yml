@@ -94,6 +94,6 @@ services:
     # ⚠️  Portas NÃO expostas ao host intencionalmente
     # Ataque a partir do Kali local apontando para 172.20.0.20
     # Se precisar expor para testes, descomente abaixo:
-    # ports:
-    #   - "2222:22"
-    #   - "2121:21"
+    ports:
+       - "2222:22"
+       - "2121:21"
