@@ -68,7 +68,11 @@ Todos devem aparecer com status `Up`.
 | Juice Shop | http://localhost:3000 | — | Crie na hora |
 | WebGoat | http://localhost:8081/WebGoat | guest | guest |
 
-### 5. Acessar o Metasploitable (via Kali)
+### 5. Acessar o Metasploitable
+```bash
+docker exec -it lab-metasploitable /bin/bash
+```
+
 
 O Metasploitable fica isolado na rede interna `172.20.0.20`.
 Para atacá-lo, use o Kali apontando para esse IP:
