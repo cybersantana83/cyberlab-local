@@ -10,6 +10,7 @@
 #   Juice Shop   → http://localhost:3000
 #   WebGoat      → http://localhost:8081/WebGoat
 #   Metasploitable → 172.20.0.20 (via Nmap/Metasploit/Kali)
+#   Enum Target (SNMP + LDAP) → 172.20.0.21 (via Nmap/snmpwalk/ldapsearch)
 #
 # PARAR:
 #   docker-compose down
@@ -78,7 +79,7 @@ services:
       lab-network:
         ipv4_address: 172.20.0.12
 
-  # ── Metasploitable 2 — Alvo de sistema ──────────────────────
+  # ── Metasploitable 2 — Alvo de sistema (SMB) ────────────────
   # Módulo 3: Nmap, Metasploit, Hydra, enumeração de serviços
   # Acesso via Nmap: nmap -sV 172.20.0.20
   # Login SSH: msfadmin / msfadmin
@@ -97,6 +98,138 @@ services:
     ports:
        - "2222:22"
        - "2121:21"
+
+  # ── Enum Target — SNMP + LDAP ────────────────────────────────
+  # Módulo 4: enumeração com enum4linux / snmpwalk / ldapsearch
+  # Community SNMP: public (sem restrição de origem)
+  # Domínio LDAP:   dc=lab,dc=local
+  # Estrutura:      ou=people, ou=groups | grupos admins/devs
+  # Usuários:       jsilva, mpereira, rsantos, amoura (senha: temp123)
+  # Acesso:
+  #   snmpwalk -v2c -c public 172.20.0.21
+  #   ldapsearch -x -H ldap://172.20.0.21 -b 'dc=lab,dc=local'
+  enum-target:
+    image: debian:bookworm-slim
+    container_name: lab-enum-target
+    restart: unless-stopped
+    tty: true
+    networks:
+      lab-network:
+        ipv4_address: 172.20.0.21
+    command: |
+      bash -c "
+      export DEBIAN_FRONTEND=noninteractive;
+      apt-get update && apt-get install -y snmpd snmp slapd ldap-utils;
+
+      cat > /etc/snmp/snmpd.conf << 'SNMPCONF'
+      rocommunity public
+      rocommunity6 public
+      sysLocation CyberLab Local
+      sysContact admin@lab.local
+      SNMPCONF
+      pgrep -x snmpd >/dev/null || snmpd -Lsd;
+
+      debconf-set-selections << 'DEBCONF'
+      slapd slapd/internal/generated_adminpw password LdapLab2026!
+      slapd slapd/internal/adminpw password LdapLab2026!
+      slapd slapd/password2 password LdapLab2026!
+      slapd slapd/password1 password LdapLab2026!
+      slapd slapd/domain string lab.local
+      slapd shared/organization string CyberLab Local
+      slapd slapd/purge_database boolean true
+      slapd slapd/move_old_database boolean true
+      slapd slapd/allow_ldap_v2 boolean false
+      slapd slapd/no_configuration boolean false
+      DEBCONF
+      dpkg-reconfigure -f noninteractive slapd;
+      pgrep -x slapd >/dev/null || slapd -h 'ldap:/// ldapi:///' -u openldap -g openldap;
+      sleep 2;
+
+      cat > /tmp/lab-directory-structure.ldif << 'LDIF'
+      dn: ou=people,dc=lab,dc=local
+      objectClass: organizationalUnit
+      ou: people
+
+      dn: ou=groups,dc=lab,dc=local
+      objectClass: organizationalUnit
+      ou: groups
+
+      dn: cn=admins,ou=groups,dc=lab,dc=local
+      objectClass: posixGroup
+      cn: admins
+      gidNumber: 5000
+      memberUid: jsilva
+      memberUid: rsantos
+
+      dn: cn=devs,ou=groups,dc=lab,dc=local
+      objectClass: posixGroup
+      cn: devs
+      gidNumber: 5001
+      memberUid: mpereira
+      memberUid: amoura
+
+      dn: uid=jsilva,ou=people,dc=lab,dc=local
+      objectClass: inetOrgPerson
+      objectClass: posixAccount
+      uid: jsilva
+      cn: Joao Silva
+      sn: Silva
+      mail: jsilva@lab.local
+      telephoneNumber: +55 11 91234-0001
+      title: Administrador de TI
+      uidNumber: 10001
+      gidNumber: 5000
+      homeDirectory: /home/jsilva
+      userPassword: temp123
+
+      dn: uid=mpereira,ou=people,dc=lab,dc=local
+      objectClass: inetOrgPerson
+      objectClass: posixAccount
+      uid: mpereira
+      cn: Mariana Pereira
+      sn: Pereira
+      mail: mpereira@lab.local
+      telephoneNumber: +55 11 91234-0002
+      title: Desenvolvedora Backend
+      uidNumber: 10002
+      gidNumber: 5001
+      homeDirectory: /home/mpereira
+      userPassword: temp123
+
+      dn: uid=rsantos,ou=people,dc=lab,dc=local
+      objectClass: inetOrgPerson
+      objectClass: posixAccount
+      uid: rsantos
+      cn: Rodrigo Santos
+      sn: Santos
+      mail: rsantos@lab.local
+      telephoneNumber: +55 11 91234-0003
+      title: Analista de Suporte
+      uidNumber: 10003
+      gidNumber: 5000
+      homeDirectory: /home/rsantos
+      userPassword: temp123
+
+      dn: uid=amoura,ou=people,dc=lab,dc=local
+      objectClass: inetOrgPerson
+      objectClass: posixAccount
+      uid: amoura
+      cn: Ana Moura
+      sn: Moura
+      mail: amoura@lab.local
+      telephoneNumber: +55 11 91234-0004
+      title: Desenvolvedora Frontend
+      uidNumber: 10004
+      gidNumber: 5001
+      homeDirectory: /home/amoura
+      userPassword: temp123
+      LDIF
+      ldapadd -x -D 'cn=admin,dc=lab,dc=local' -w 'LdapLab2026!' -f /tmp/lab-directory-structure.ldif || true;
+
+      touch /tmp/ready;
+      tail -f /dev/null
+      "
+
   # ── Kali Linux — Máquina de Ataque ──────────────────────────
   kali:
     image: kalilinux/kali-rolling:latest
@@ -116,9 +249,9 @@ services:
       echo 'echo \"⏳ Aguarde... Instalação de ferramentas em andamento...\"' >> /root/.bashrc;
       echo 'while [ ! -f /tmp/ready ]; do sleep 1; done' >> /root/.bashrc;
       echo 'clear' >> /root/.bashrc;
-      
+
       apt-get update && apt-get install -y iputils-ping curl net-tools nmap enum4linux snmp ldap-utils;
-      
+
       touch /tmp/ready;
       tail -f /dev/null
       "
